@@ -100,3 +100,6 @@ ENV/
 # mypy
 .mypy_cache/
 /tmp
+/icc.mvw
+/isu.enterprise
+/isu.gui.gtk
