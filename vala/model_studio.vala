@@ -6,26 +6,26 @@ namespace ModelStudio {
 
 	public class Application : Icc.Gui.Application {
 		public Application() {
-			this.acquire_widgets.connect(test);
-			Object(
-				application_id:"model-studio.icc",
-				flags: 0,
-				filename:"../ui/application_window.glade"
+			base(
+				null, // "model-studio.icc",
+				0,
+				"../ui/application_window.glade"
 				);
+			this.startup.connect(on_startup);
 		}
 
-		public void test() {
-			stdout.printf("OK\n");
-		}
+		// public override signal void acquire_widgets (Application app, Gtk.Builder builder) {
+		// 	base(app, builder);
+		// 	stdout.printf("OK\n");
+		// }
 
+		protected void on_startup () {
+			stdout.puts("Startup of ModelStudio\n");
+		}
 	}
 
-	int test_run (string[] args) {
+	public static int main (string[] args) {
 		var app = new Application();
 		return app.run(args);
-	}
-
-	int main (string[] args) {
-		return test_run(args);
 	}
 }
