@@ -5,8 +5,9 @@
 #include <glib.h>
 #include <glib-object.h>
 #include "icc_gui.h"
-#include <gio/gio.h>
+#include <gtk/gtk.h>
 #include <stdio.h>
+#include <gio/gio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,10 +24,12 @@ typedef struct _ModelStudioApplicationClass ModelStudioApplicationClass;
 typedef struct _ModelStudioApplicationPrivate ModelStudioApplicationPrivate;
 enum  {
 	MODEL_STUDIO_APPLICATION_0_PROPERTY,
+	MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY,
 	MODEL_STUDIO_APPLICATION_NUM_PROPERTIES
 };
 static GParamSpec* model_studio_application_properties[MODEL_STUDIO_APPLICATION_NUM_PROPERTIES];
 #define _g_object_unref0(var) ((var == NULL) ? NULL : (var = (g_object_unref (var), NULL)))
+#define _g_error_free0(var) ((var == NULL) ? NULL : (var = (g_error_free (var), NULL)))
 
 struct _ModelStudioApplication {
 	IccGuiApplication parent_instance;
@@ -37,26 +40,88 @@ struct _ModelStudioApplicationClass {
 	IccGuiApplicationClass parent_class;
 };
 
+struct _ModelStudioApplicationPrivate {
+	GtkBox* _main_box;
+};
+
 
 static gpointer model_studio_application_parent_class = NULL;
 
 GType model_studio_application_get_type (void) G_GNUC_CONST;
+#define MODEL_STUDIO_APPLICATION_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplicationPrivate))
+void model_studio_application_on_acquire_widgets (ModelStudioApplication* self, IccGuiApplication* app, GtkBuilder* builder);
+static void model_studio_application_set_main_box (ModelStudioApplication* self, GtkBox* value);
+GtkBox* model_studio_application_get_main_box (ModelStudioApplication* self);
+void model_studio_application_on_startup (ModelStudioApplication* self);
 ModelStudioApplication* model_studio_application_new (void);
 ModelStudioApplication* model_studio_application_construct (GType object_type);
-void model_studio_application_on_startup (ModelStudioApplication* self);
+static GObject * model_studio_application_constructor (GType type, guint n_construct_properties, GObjectConstructParam * construct_properties);
+static void _model_studio_application_on_acquire_widgets_icc_gui_application_acquire_widgets (IccGuiApplication* _sender, IccGuiApplication* app, GtkBuilder* builder, gpointer self);
 static void _model_studio_application_on_startup_g_application_startup (GApplication* _sender, gpointer self);
+static void model_studio_application_finalize (GObject * obj);
+static void _vala_model_studio_application_get_property (GObject * object, guint property_id, GValue * value, GParamSpec * pspec);
+static void _vala_model_studio_application_set_property (GObject * object, guint property_id, const GValue * value, GParamSpec * pspec);
 gint model_studio_main (gchar** args, int args_length1);
 
 
-static void _model_studio_application_on_startup_g_application_startup (GApplication* _sender, gpointer self) {
-	model_studio_application_on_startup ((ModelStudioApplication*) self);
+void model_studio_application_on_acquire_widgets (ModelStudioApplication* self, IccGuiApplication* app, GtkBuilder* builder) {
+	FILE* _tmp0_;
+	GtkBuilder* _tmp1_;
+	GObject* _tmp2_;
+	GtkApplicationWindow* _tmp3_;
+	GtkApplicationWindow* _tmp4_;
+	GtkBox* _tmp5_;
+	g_return_if_fail (self != NULL);
+	g_return_if_fail (app != NULL);
+	g_return_if_fail (builder != NULL);
+	_tmp0_ = stdout;
+	fprintf (_tmp0_, "Acquiring widgets.\n");
+	_tmp1_ = builder;
+	_tmp2_ = gtk_builder_get_object (_tmp1_, "main_box");
+	model_studio_application_set_main_box (self, G_TYPE_CHECK_INSTANCE_TYPE (_tmp2_, gtk_box_get_type ()) ? ((GtkBox*) _tmp2_) : NULL);
+	_tmp3_ = icc_gui_application_get_application_window ((IccGuiApplication*) self);
+	_tmp4_ = _tmp3_;
+	_tmp5_ = self->priv->_main_box;
+	gtk_container_add ((GtkContainer*) _tmp4_, (GtkWidget*) _tmp5_);
+}
+
+
+void model_studio_application_on_startup (ModelStudioApplication* self) {
+	FILE* _tmp0_;
+	GError * _inner_error_ = NULL;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = stdout;
+	fputs ("Startup of ModelStudio\n", _tmp0_);
+	{
+		icc_gui_application_load_ui_from_file ((IccGuiApplication*) self, "../ui/application_window.glade", &_inner_error_);
+		if (G_UNLIKELY (_inner_error_ != NULL)) {
+			goto __catch0_g_error;
+		}
+	}
+	goto __finally0;
+	__catch0_g_error:
+	{
+		GError* e = NULL;
+		FILE* _tmp1_;
+		e = _inner_error_;
+		_inner_error_ = NULL;
+		_tmp1_ = stderr;
+		fputs ("Cannot load user interface components.\n", _tmp1_);
+		g_signal_emit_by_name ((IccGuiApplication*) self, "init-failure");
+		_g_error_free0 (e);
+	}
+	__finally0:
+	if (G_UNLIKELY (_inner_error_ != NULL)) {
+		g_critical ("file %s: line %d: uncaught error: %s (%s, %d)", __FILE__, __LINE__, _inner_error_->message, g_quark_to_string (_inner_error_->domain), _inner_error_->code);
+		g_clear_error (&_inner_error_);
+		return;
+	}
 }
 
 
 ModelStudioApplication* model_studio_application_construct (GType object_type) {
 	ModelStudioApplication * self = NULL;
-	self = (ModelStudioApplication*) icc_gui_application_construct (object_type, NULL, 0, "../ui/application_window.glade");
-	g_signal_connect_object ((GApplication*) self, "startup", (GCallback) _model_studio_application_on_startup_g_application_startup, self, 0);
+	self = (ModelStudioApplication*) icc_gui_application_construct (object_type);
 	return self;
 }
 
@@ -66,20 +131,79 @@ ModelStudioApplication* model_studio_application_new (void) {
 }
 
 
-void model_studio_application_on_startup (ModelStudioApplication* self) {
-	FILE* _tmp0_;
+GtkBox* model_studio_application_get_main_box (ModelStudioApplication* self) {
+	GtkBox* result;
+	GtkBox* _tmp0_;
+	g_return_val_if_fail (self != NULL, NULL);
+	_tmp0_ = self->priv->_main_box;
+	result = _tmp0_;
+	return result;
+}
+
+
+static gpointer _g_object_ref0 (gpointer self) {
+	return self ? g_object_ref (self) : NULL;
+}
+
+
+static void model_studio_application_set_main_box (ModelStudioApplication* self, GtkBox* value) {
 	g_return_if_fail (self != NULL);
-	_tmp0_ = stdout;
-	fputs ("Startup of ModelStudio\n", _tmp0_);
+	if (model_studio_application_get_main_box (self) != value) {
+		GtkBox* _tmp0_;
+		GtkBox* _tmp1_;
+		_tmp0_ = value;
+		_tmp1_ = _g_object_ref0 (_tmp0_);
+		_g_object_unref0 (self->priv->_main_box);
+		self->priv->_main_box = _tmp1_;
+		g_object_notify_by_pspec ((GObject *) self, model_studio_application_properties[MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY]);
+	}
+}
+
+
+static void _model_studio_application_on_acquire_widgets_icc_gui_application_acquire_widgets (IccGuiApplication* _sender, IccGuiApplication* app, GtkBuilder* builder, gpointer self) {
+	model_studio_application_on_acquire_widgets ((ModelStudioApplication*) self, app, builder);
+}
+
+
+static void _model_studio_application_on_startup_g_application_startup (GApplication* _sender, gpointer self) {
+	model_studio_application_on_startup ((ModelStudioApplication*) self);
+}
+
+
+static GObject * model_studio_application_constructor (GType type, guint n_construct_properties, GObjectConstructParam * construct_properties) {
+	GObject * obj;
+	GObjectClass * parent_class;
+	ModelStudioApplication * self;
+	parent_class = G_OBJECT_CLASS (model_studio_application_parent_class);
+	obj = parent_class->constructor (type, n_construct_properties, construct_properties);
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplication);
+	g_signal_connect_object ((IccGuiApplication*) self, "acquire-widgets", (GCallback) _model_studio_application_on_acquire_widgets_icc_gui_application_acquire_widgets, self, 0);
+	g_signal_connect_object ((GApplication*) self, "startup", (GCallback) _model_studio_application_on_startup_g_application_startup, self, 0);
+	return obj;
 }
 
 
 static void model_studio_application_class_init (ModelStudioApplicationClass * klass) {
 	model_studio_application_parent_class = g_type_class_peek_parent (klass);
+	g_type_class_add_private (klass, sizeof (ModelStudioApplicationPrivate));
+	G_OBJECT_CLASS (klass)->get_property = _vala_model_studio_application_get_property;
+	G_OBJECT_CLASS (klass)->set_property = _vala_model_studio_application_set_property;
+	G_OBJECT_CLASS (klass)->constructor = model_studio_application_constructor;
+	G_OBJECT_CLASS (klass)->finalize = model_studio_application_finalize;
+	g_object_class_install_property (G_OBJECT_CLASS (klass), MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY, model_studio_application_properties[MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY] = g_param_spec_object ("main-box", "main-box", "main-box", gtk_box_get_type (), G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB | G_PARAM_READABLE));
 }
 
 
 static void model_studio_application_instance_init (ModelStudioApplication * self) {
+	self->priv = MODEL_STUDIO_APPLICATION_GET_PRIVATE (self);
+}
+
+
+static void model_studio_application_finalize (GObject * obj) {
+	ModelStudioApplication * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (obj, MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplication);
+	_g_object_unref0 (self->priv->_main_box);
+	G_OBJECT_CLASS (model_studio_application_parent_class)->finalize (obj);
 }
 
 
@@ -92,6 +216,34 @@ GType model_studio_application_get_type (void) {
 		g_once_init_leave (&model_studio_application_type_id__volatile, model_studio_application_type_id);
 	}
 	return model_studio_application_type_id__volatile;
+}
+
+
+static void _vala_model_studio_application_get_property (GObject * object, guint property_id, GValue * value, GParamSpec * pspec) {
+	ModelStudioApplication * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (object, MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplication);
+	switch (property_id) {
+		case MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY:
+		g_value_set_object (value, model_studio_application_get_main_box (self));
+		break;
+		default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+		break;
+	}
+}
+
+
+static void _vala_model_studio_application_set_property (GObject * object, guint property_id, const GValue * value, GParamSpec * pspec) {
+	ModelStudioApplication * self;
+	self = G_TYPE_CHECK_INSTANCE_CAST (object, MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplication);
+	switch (property_id) {
+		case MODEL_STUDIO_APPLICATION_MAIN_BOX_PROPERTY:
+		model_studio_application_set_main_box (self, g_value_get_object (value));
+		break;
+		default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+		break;
+	}
 }
 
 
