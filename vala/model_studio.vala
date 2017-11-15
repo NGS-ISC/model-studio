@@ -2,6 +2,8 @@ using Gtk;
 using GLib;
 using Icc.Gui;
 
+// https://aztlan.fciencias.unam.mx/~canek/building-vala-applications/
+
 namespace ModelStudio {
 	public class ApplicationWindow: Gtk.ApplicationWindow {
 		public Gtk.Box main_box {private set; get;}
