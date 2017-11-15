@@ -3,18 +3,29 @@ using GLib;
 using Icc.Gui;
 
 namespace ModelStudio {
-
-	public class Application : Icc.Gui.Application {
+	public class ApplicationWindow: Gtk.ApplicationWindow {
 		public Gtk.Box main_box {private set; get;}
 
-		public void on_acquire_widgets (Icc.Gui.Application app, Gtk.Builder builder) {
+		// public ApplicationWindow(Gtk.Application app) {
+		// 	base(app);
+		// }
+
+		public void on_application_acquire_widgets(Gtk.Builder builder) {
 			stdout.printf("Acquiring widgets.\n");
 			main_box=builder.get_object ("main_box") as Gtk.Box;
-			application_window.add(main_box);
+			add(main_box);
 		}
+
+	}
+
+	public class Application : Icc.Gui.Application {
 
 		protected new void on_startup () {
 			stdout.puts("Startup of ModelStudio\n");
+			application_window = new ApplicationWindow(this);
+			add_window(application_window);
+			this.acquire_widgets.connect(application_window.on_application_acquire_widgets);
+
 			try {
 				load_ui_from_file("../ui/application_window.glade");
 			} catch (GLib.Error e) {
@@ -24,7 +35,6 @@ namespace ModelStudio {
 		}
 
 		construct {
-			this.acquire_widgets.connect(on_acquire_widgets);
 			this.startup.connect(on_startup);
 		}
 
