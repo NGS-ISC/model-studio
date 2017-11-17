@@ -5,7 +5,7 @@ using Icc.Gui;
 // https://aztlan.fciencias.unam.mx/~canek/building-vala-applications/
 
 namespace ModelStudio {
-	[GtkTemplate (ui = "/org/gtk/model-studio/ui/application_window.glade")]
+	[GtkTemplate (ui = "/org/gtk/icc/model-studio/application_window.glade")]
 	public class ApplicationWindow: Gtk.ApplicationWindow {
 		[GtkChild]
 		public Gtk.Box main_box;
@@ -25,9 +25,15 @@ namespace ModelStudio {
 	public class Application : Gtk.Application {
 		ApplicationWindow application_window;
 
-		protected new void on_startup () {
+		construct {
+			this.startup.connect(on_startup);
+			this.activate.connect(on_activate);
+		}
+
+		protected void on_startup () {
 			stdout.puts("Startup of ModelStudio\n");
 			application_window = new ApplicationWindow(this);
+			application_window.destroy.connect(on_application_window_destroy);
 			add_window(application_window);
 			// this.acquire_widgets.connect(application_window.on_application_acquire_widgets);
 
@@ -42,6 +48,14 @@ namespace ModelStudio {
 		// construct {
 		// 	this.startup.connect(on_startup);
 		// }
+
+		protected void on_activate() {
+			application_window.show_all();
+		}
+
+		protected void on_application_window_destroy() {
+			quit();
+		}
 
 	}
 
