@@ -5,8 +5,8 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
-#include <stdio.h>
 #include <gio/gio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -74,12 +74,12 @@ static gpointer model_studio_application_parent_class = NULL;
 GType model_studio_application_window_get_type (void) G_GNUC_CONST;
 ModelStudioApplicationWindow* model_studio_application_window_new (GtkApplication* application);
 ModelStudioApplicationWindow* model_studio_application_window_construct (GType object_type, GtkApplication* application);
+void model_studio_application_window_on_destroy (ModelStudioApplicationWindow* self);
+static void _model_studio_application_window_on_destroy_gtk_widget_destroy (GtkWidget* _sender, gpointer self);
 static void model_studio_application_window_finalize (GObject * obj);
 GType model_studio_application_get_type (void) G_GNUC_CONST;
 #define MODEL_STUDIO_APPLICATION_GET_PRIVATE(o) (G_TYPE_INSTANCE_GET_PRIVATE ((o), MODEL_STUDIO_TYPE_APPLICATION, ModelStudioApplicationPrivate))
 void model_studio_application_on_startup (ModelStudioApplication* self);
-void model_studio_application_on_application_window_destroy (ModelStudioApplication* self);
-static void _model_studio_application_on_application_window_destroy_gtk_widget_destroy (GtkWidget* _sender, gpointer self);
 void model_studio_application_on_activate (ModelStudioApplication* self);
 ModelStudioApplication* model_studio_application_new (void);
 ModelStudioApplication* model_studio_application_construct (GType object_type);
@@ -105,11 +105,27 @@ ModelStudioApplicationWindow* model_studio_application_window_new (GtkApplicatio
 }
 
 
+void model_studio_application_window_on_destroy (ModelStudioApplicationWindow* self) {
+	GtkApplication* _tmp0_;
+	GtkApplication* _tmp1_;
+	g_return_if_fail (self != NULL);
+	_tmp0_ = gtk_window_get_application ((GtkWindow*) self);
+	_tmp1_ = _tmp0_;
+	g_application_quit ((GApplication*) _tmp1_);
+}
+
+
+static void _model_studio_application_window_on_destroy_gtk_widget_destroy (GtkWidget* _sender, gpointer self) {
+	model_studio_application_window_on_destroy ((ModelStudioApplicationWindow*) self);
+}
+
+
 static void model_studio_application_window_class_init (ModelStudioApplicationWindowClass * klass) {
 	model_studio_application_window_parent_class = g_type_class_peek_parent (klass);
 	G_OBJECT_CLASS (klass)->finalize = model_studio_application_window_finalize;
 	gtk_widget_class_set_template_from_resource (GTK_WIDGET_CLASS (klass), "/org/gtk/icc/model-studio/application_window.glade");
 	gtk_widget_class_bind_template_child_full (GTK_WIDGET_CLASS (klass), "main_box", FALSE, G_STRUCT_OFFSET (ModelStudioApplicationWindow, main_box));
+	gtk_widget_class_bind_template_callback_full (GTK_WIDGET_CLASS (klass), "on_destroy", G_CALLBACK(_model_studio_application_window_on_destroy_gtk_widget_destroy));
 }
 
 
@@ -138,16 +154,10 @@ GType model_studio_application_window_get_type (void) {
 }
 
 
-static void _model_studio_application_on_application_window_destroy_gtk_widget_destroy (GtkWidget* _sender, gpointer self) {
-	model_studio_application_on_application_window_destroy ((ModelStudioApplication*) self);
-}
-
-
 void model_studio_application_on_startup (ModelStudioApplication* self) {
 	FILE* _tmp0_;
 	ModelStudioApplicationWindow* _tmp1_;
 	ModelStudioApplicationWindow* _tmp2_;
-	ModelStudioApplicationWindow* _tmp3_;
 	g_return_if_fail (self != NULL);
 	_tmp0_ = stdout;
 	fputs ("Startup of ModelStudio\n", _tmp0_);
@@ -156,9 +166,7 @@ void model_studio_application_on_startup (ModelStudioApplication* self) {
 	_g_object_unref0 (self->priv->application_window);
 	self->priv->application_window = _tmp1_;
 	_tmp2_ = self->priv->application_window;
-	g_signal_connect_object ((GtkWidget*) _tmp2_, "destroy", (GCallback) _model_studio_application_on_application_window_destroy_gtk_widget_destroy, self, 0);
-	_tmp3_ = self->priv->application_window;
-	gtk_application_add_window ((GtkApplication*) self, (GtkWindow*) _tmp3_);
+	gtk_application_add_window ((GtkApplication*) self, (GtkWindow*) _tmp2_);
 }
 
 
@@ -167,12 +175,6 @@ void model_studio_application_on_activate (ModelStudioApplication* self) {
 	g_return_if_fail (self != NULL);
 	_tmp0_ = self->priv->application_window;
 	gtk_widget_show_all ((GtkWidget*) _tmp0_);
-}
-
-
-void model_studio_application_on_application_window_destroy (ModelStudioApplication* self) {
-	g_return_if_fail (self != NULL);
-	g_application_quit ((GApplication*) self);
 }
 
 

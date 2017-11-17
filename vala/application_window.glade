@@ -12,8 +12,7 @@
     <property name="default_height">600</property>
     <property name="hide_titlebar_when_maximized">True</property>
     <property name="icon_name">applications-engineering</property>
-    <signal name="destroy" handler="on_application_window_destroy" swapped="no"/>
-    <signal name="destroy-event" handler="on_application_window_destroy_event" swapped="no"/>
+    <signal name="destroy" handler="on_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="main_box">
         <property name="visible">True</property>

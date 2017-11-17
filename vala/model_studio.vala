@@ -14,11 +14,17 @@ namespace ModelStudio {
 			GLib.Object(application: application);
 		}
 
-		// public void on_application_acquire_widgets(Gtk.Builder builder) {
-		// 	stdout.printf("Acquiring widgets.\n");
-		// 	main_box=builder.get_object ("main_box") as Gtk.Box;
-		// 	add(main_box);
+		// [GtkCallback]
+		// protected bool on_application_window_destroy_event() {
+		// 	stderr.puts("destroy-event\n");
+		// 	return true;
 		// }
+
+
+		[GtkCallback]
+		protected void on_destroy() {
+			application.quit();
+		}
 
 	}
 
@@ -33,7 +39,7 @@ namespace ModelStudio {
 		protected void on_startup () {
 			stdout.puts("Startup of ModelStudio\n");
 			application_window = new ApplicationWindow(this);
-			application_window.destroy.connect(on_application_window_destroy);
+			// application_window.destroy.connect(on_application_window_destroy);
 			add_window(application_window);
 			// this.acquire_widgets.connect(application_window.on_application_acquire_widgets);
 
@@ -51,10 +57,6 @@ namespace ModelStudio {
 
 		protected void on_activate() {
 			application_window.show_all();
-		}
-
-		protected void on_application_window_destroy() {
-			quit();
 		}
 
 	}

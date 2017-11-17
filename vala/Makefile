@@ -12,7 +12,7 @@ OBJS=model_studio.o $(RES)
 RSFLAGS= --gresources=$(GRES) --gresourcesdir=$(GRCDIR)
 FLAGS=-X $(ICCGUI)/icc_gui.so -X -I$(ICCGUI) -g
 
-all: build-c test
+# all: build-c test
 
 run: build
 
@@ -34,7 +34,7 @@ resources.c: $(GRES)
 all: demo
 
 clean:
-	rm -fv *~ *.o model_studio
+	rm -fv *~ *.o model_studio *.c
 
 #my-resources.c: my-resources.xml mywidget.ui
 #	glib-compile-resources my-resources.xml \
