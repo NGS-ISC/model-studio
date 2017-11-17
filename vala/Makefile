@@ -29,7 +29,7 @@ build: model_studio
 model_studio.c: $(SRC)
 	valac -C $(ICCGUI)/icc_gui.vapi $< $(PACKAGES) $(RSFLAGS)
 
-resources.c: $(GRES)
+resources.c: $(GRES) application_window.glade
 	glib-compile-resources $< --target=$@ --generate-source
 all: demo
 
