@@ -105,4 +105,5 @@ ENV/
 /isu.gui.gtk
 /vala/model_studio
 *.o
-*.*~
+*~
+/vala/build*/
