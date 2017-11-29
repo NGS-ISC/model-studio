@@ -34,14 +34,27 @@ ms_library = library('model-studio-' + api,
            dependencies: [glib, gobject, gtk],
            # link_with: gflow,
            # include_directories: gflow_inc,
-           vala_gir: 'ModelSudio-' + api + '.gir',
+           vala_gir: 'ModelStudio-' + api + '.gir',
            vala_args: vala_args,
            install: false
 )
+
+
+ms_typelib = custom_target('model-studio-typelib',
+              command: [g_ir_compiler, '--output', '@OUTPUT@', meson.current_build_dir() + '/ModelStudio-' + api + '.gir',
+                       # '--shared-library', get_option('prefix') + '/' + get_option('libdir') + '/libmodelstudio-'+ api +'.so'
+                       '--shared-library', 'libmodelstudio-'+ api +'.so'
+                       ],
+              output: 'ModelStudio-' + api + '.typelib',
+              depends: ms_library,
+              install: false,
+              install_dir: get_option('libdir') + '/girepository-1.0')
+
 
 test_src = files(['model_studio-test.vala'])
 
 executable('model-studio', test_src,
 dependencies: [glib, gobject, gtk],
+depends: ms_typelib,
 link_with: ms_library,
 )

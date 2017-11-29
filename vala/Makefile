@@ -1,5 +1,7 @@
 .PHONY: run build all meson meson-run
 
+API=0.1
+
 ICCGUI=/home/eugeneai/Development/codes/NGS/model-studio/isu.gui.gtk/vala
 GRCDIR=/home/eugeneai/Development/codes/NGS/model-studio/isu.gui.gtk/vala
 
@@ -17,6 +19,7 @@ FLAGS=-X $(ICCGUI)/icc_gui.so -X -I$(ICCGUI) -g
 meson: clean
 	meson builddir
 	ninja -v -C builddir
+	ninja -v -C builddir ModelStudio-$(API).typelib
 
 meson-run: meson
 	cd builddir && ./model-studio
