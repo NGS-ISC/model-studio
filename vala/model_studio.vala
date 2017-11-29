@@ -39,27 +39,16 @@ namespace ModelStudio {
 		protected void on_startup () {
 			stdout.puts("Startup of ModelStudio\n");
 			application_window = new ApplicationWindow(this);
-			// application_window.destroy.connect(on_application_window_destroy);
 			add_window(application_window);
-			// this.acquire_widgets.connect(application_window.on_application_acquire_widgets);
-
-			// try {
-			// 	load_ui_from_file("../ui/application_window.glade");
-			// } catch (GLib.Error e) {
-			// 	stderr.puts("Cannot load user interface components.\n");
-			// 	init_failure();
-			// }
 		}
-
-		// construct {
-		// 	this.startup.connect(on_startup);
-		// }
 
 		protected void on_activate() {
 			application_window.show_all();
 		}
 
 	}
+
+	public static
 
 	public static int main (string[] args) {
 		var app = new Application();
