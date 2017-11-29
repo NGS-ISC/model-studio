@@ -26,9 +26,22 @@ gen_resources = custom_target('gen-resources',
               ]
 )
 
-src = files(['model_studio.vala', 'model_studio-test.vala']) + [gen_resources]
+lib_src = files(['model_studio.vala']) + [gen_resources]
 
-executable('model-studio', src,
+
+ms_library = library('model-studio-' + api,
+           lib_src,
+           dependencies: [glib, gobject, gtk],
+           # link_with: gflow,
+           # include_directories: gflow_inc,
+           vala_gir: 'ModelSudio-' + api + '.gir',
+           vala_args: vala_args,
+           install: false
+)
+
+test_src = files(['model_studio-test.vala'])
+
+executable('model-studio', test_src,
 dependencies: [glib, gobject, gtk],
-vala_args: vala_args
+link_with: ms_library,
 )
