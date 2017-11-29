@@ -1,4 +1,4 @@
-.PHONY: run build all
+.PHONY: run build all meson meson-run
 
 ICCGUI=/home/eugeneai/Development/codes/NGS/model-studio/isu.gui.gtk/vala
 GRCDIR=/home/eugeneai/Development/codes/NGS/model-studio/isu.gui.gtk/vala
@@ -13,6 +13,13 @@ RSFLAGS= --gresources=$(GRES) --gresourcesdir=$(GRCDIR)
 FLAGS=-X $(ICCGUI)/icc_gui.so -X -I$(ICCGUI) -g
 
 # all: build-c test
+
+meson: clean
+	meson builddir
+	ninja -v -C builddir
+
+meson-run: meson
+	cd builddir && ./model-studio
 
 run: build
 
@@ -35,6 +42,8 @@ all: demo
 
 clean:
 	rm -fv *~ *.o model_studio *.c
+	rm -rf builddir
+
 
 #my-resources.c: my-resources.xml mywidget.ui
 #	glib-compile-resources my-resources.xml \
