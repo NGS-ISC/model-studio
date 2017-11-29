@@ -1,6 +1,6 @@
 project('model_studio', 'c', 'vala')
 
-api = '0.1'
+api = get_option('api')
 
 pkgconfig = import('pkgconfig')
 glib = dependency('glib-2.0')

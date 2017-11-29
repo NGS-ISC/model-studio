@@ -18,6 +18,7 @@ FLAGS=-X $(ICCGUI)/icc_gui.so -X -I$(ICCGUI) -g
 
 meson: clean
 	meson builddir
+	cd builddir && meson configure -Dapi=$(API)
 	ninja -v -C builddir
 	ninja -v -C builddir ModelStudio-$(API).typelib
 
