@@ -26,7 +26,9 @@ gen_resources = custom_target('gen-resources',
               ]
 )
 
-executable('model-studio', ['model_studio.vala', gen_resources],
+src = files(['model_studio.vala', 'model_studio-test.vala']) + [gen_resources]
+
+executable('model-studio', src,
 dependencies: [glib, gobject, gtk],
 vala_args: vala_args
 )
