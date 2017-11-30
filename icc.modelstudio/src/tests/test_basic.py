@@ -15,9 +15,10 @@ class TestBasic:
     def test_gobject(self):
         import gi
         gi.require_version('Gtk', '3.0')
+        gi.require_version('GFlow', '0.2')
+        gi.require_version('GtkFlow', '0.2')
         from gi.repository import GLib
         from gi.repository import Gtk
-        #gi.require_version('GFlow', '1.0')
         from gi.repository import GFlow
         from gi.repository import GtkFlow
 
